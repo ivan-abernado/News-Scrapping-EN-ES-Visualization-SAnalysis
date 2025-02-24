@@ -1,12 +1,13 @@
 import spacy
+import pandas as pd
 from pandas import DataFrame
 from tqdm import tqdm
 
-#Preprocess for Sentiment Analysis with Texts in Spanish
-def spanish_preprocess_light(df: DataFrame):
+# Spanish Texts Preprocess for Sentiment Analysis
+def spanish_preprocess_light(df_input: DataFrame):
     #Nested function that contains the actual preprocess procedures
     def preprocessor_es(x: str):
-        # Every news article's text will be passed on as an Spacy object to preprocess
+        # Every news article's text will be passed on as a Spacy object to preprocess
         doc = nlp(x)
 
         # List comprehension for the preprocess of tokens within the text.
@@ -19,21 +20,21 @@ def spanish_preprocess_light(df: DataFrame):
 
         return cleaned_text
 
-    # Since this is the function for the preprocess of Spanish texts, we load an Spanish LLM
+    # Since this is the function for the preprocess of Spanish texts, we load a Spanish LLM
     nlp = spacy.load('es_core_news_sm')
-    tqdm.pandas(desc='Preprocessing Spanish text', colour='blue')
-
+    tqdm.pandas(desc='Preprocessing Spanish texts', colour='blue')
     # We apply a lambda function to preprocess each Text cell within the news dataframe
     # and overwrite that same cell
-    df['Text'] = df['Text'].progress_apply(
+
+    df_input['Light Prep.'] = df_input['Text'].progress_apply(
         lambda x: preprocessor_es(x)
     )
 
-#Preprocess for WordCloud plotting with Texts in Spanish
-def spanish_preprocess_deep(df: DataFrame):
+# Spanish Texts Preprocess for WordCloud plotting or POS/NER Tagging
+def spanish_preprocess_deep(df_input: DataFrame):
     # Nested function that contains the actual preprocess procedures
     def preprocessor_es(x: str):
-        # Every news article's text will be passed on as an Spacy object to preprocess
+        # Every news article's text will be passed on as a Spacy object to preprocess
         doc = nlp(x)
 
         # List comprehension for the preprocess of tokens within the text.
@@ -46,18 +47,18 @@ def spanish_preprocess_deep(df: DataFrame):
 
         return cleaned_text
 
-    # Since this is the function for the preprocess of Spanish texts, we load an Spanish LLM
+    # Since this is the function for the preprocess of Spanish texts, we load a Spanish LLM
     nlp = spacy.load('es_core_news_sm')
-    tqdm.pandas(desc='Preprocessing Spanish text', colour='blue')
+    tqdm.pandas(desc='Preprocessing Spanish texts', colour='blue')
 
     # We apply a lambda function to preprocess each Text cell within the news dataframe
     # and overwrite that same cell
-    df['Text'] = df['Text'].progress_apply(
+    df_input['Deep Prep.'] = df_input['Text'].progress_apply(
         lambda x: preprocessor_es(x)
     )
 
-#Preprocess for Sentiment Analysis with Texts in English
-def english_preprocess_light(df: DataFrame):
+# English Texts Preprocess for Sentiment Analysis
+def english_preprocess_light(df_input: DataFrame):
     # Nested function that contains the actual preprocess procedures
     def preprocessor_en(x: str):
         # Before proceeding with the same preprocess we have done before,
@@ -79,7 +80,7 @@ def english_preprocess_light(df: DataFrame):
         words_without_contractions = [contractions[word] if word in contractions else word for word in words]
         text = ' '.join(words_without_contractions)
 
-        # Now we convert the text into an Spacy object
+        # Now we convert the text into a Spacy object
         doc = nlp(text)
 
         # List comprehension for the preprocess of tokens within the text.
@@ -94,16 +95,16 @@ def english_preprocess_light(df: DataFrame):
 
     # Since this is the function for the preprocess of English texts, we load an English LLM
     nlp = spacy.load('en_core_web_sm')
-    tqdm.pandas(desc='Preprocessing English text', colour='blue')
+    tqdm.pandas(desc='Preprocessing English texts', colour='blue')
 
     # We apply a lambda function to preprocess each Text cell within the news dataframe
     # and overwrite that same cell
-    df['Text'] = df['Text'].progress_apply(
+    df_input['Light Prep.'] = df_input['Text'].progress_apply(
         lambda x: preprocessor_en(x)
     )
 
-#Preprocess for WordCloud plotting with Texts in English
-def english_preprocess_deep(df: DataFrame):
+# English Texts Preprocess for WordCloud plotting or POS/NER Tagging
+def english_preprocess_deep(df_input: DataFrame):
     # Nested function that contains the actual preprocess procedures
     def preprocessor_en(x: str):
         # Before proceeding with the same preprocess we have done before,
@@ -125,7 +126,7 @@ def english_preprocess_deep(df: DataFrame):
         words_without_contractions = [contractions[word] if word in contractions else word for word in words]
         text = ' '.join(words_without_contractions)
 
-        # Now we convert the text into an Spacy object
+        # Now we convert the text into a Spacy object
         doc = nlp(text)
 
         # List comprehension for the preprocess of tokens within the text.
@@ -140,10 +141,21 @@ def english_preprocess_deep(df: DataFrame):
 
     # Since this is the function for the preprocess of English texts, we load an English LLM
     nlp = spacy.load('en_core_web_sm')
-    tqdm.pandas(desc='Preprocessing English text', colour='blue')
+    tqdm.pandas(desc='Preprocessing English texts', colour='blue')
 
     # We apply a lambda function to preprocess each Text cell within the news dataframe
     # and overwrite that same cell
-    df['Text'] = df['Text'].progress_apply(
+    df_input['Deep Prep.'] = df_input['Text'].progress_apply(
         lambda x: preprocessor_en(x)
     )
+
+newspaper = 'rtve'
+
+language = 'ES'
+
+df = pd.read_csv(f'News CSVs/{language.upper()}/{newspaper.lower()}.csv')
+
+spanish_preprocess_light(df)
+spanish_preprocess_deep(df)
+
+df.to_csv(f'News CSVs/{language.upper()}/{newspaper.lower()}.csv', mode='w', encoding='utf-8-sig', index=False)
